@@ -10,8 +10,8 @@ import torch
 from torch.utils import tensorboard
 import torch.nn.functional as F
 
-from clutter_data import Dataset
-from model import FcnResnet50
+from src.clutter_data import Dataset
+from src.model import FcnResnet50
 
 
 LAMBDA_NO_GRASP = 1.0
@@ -23,14 +23,13 @@ def main(args):
     device = torch.device("cuda" if use_cuda else "cpu")
     print("Using {} as device for training".format(device))
 
-    kwargs = {"num_workers": 30, "pin_memory": True} if use_cuda else {}
+    kwargs = {"num_workers": 5, "pin_memory": True} if use_cuda else {}
 
     # create log directory
     time_stamp = datetime.now().strftime("%y-%m-%d-%H-%M")
-    description = "{}_dataset={},architecture={},lr={:.0e}".format(
+    description = "{}_dataset={},architecture=ResNet50,lr={:.0e}".format(
         time_stamp,
         args.dataset.name,
-        args.architecture,
         args.lr,
     ).strip(",")
     logdir = args.logdir / description
@@ -124,6 +123,7 @@ def create_train_val_loaders(root, batch_size, val_split, kwargs):
     try:
         train_set = Dataset(root / Path('train'))
         val_set = Dataset(root / Path('val'))
+
     except FileNotFoundError:
         print("Splits not found in {}. Use random split.".format(root))
         # split into train and validation sets
@@ -145,6 +145,14 @@ def prepare_batch(batch, device):
     return depth_im, y_true
 
 def select(pred, y_all):
+    """
+    Filter ground-truth and output tensors to those, where ground-truth information is available.
+    :param pred: Predictions from network
+    :param y_all: Ground-truth information tensor
+
+    :return: Predicted and ground-truth tensors for confidence, orientation and width, as well as a mask for
+                where actual grasp-samples are available (excluding background pixels).
+    """
     indices = torch.nonzero(y_all[:, :, :, 0])
     grasp_sample_mask = (y_all[indices[:, 0], indices[:, 1], indices[:, 2], 0] == 2)
 
@@ -158,6 +166,18 @@ def select(pred, y_all):
     return (qual_pred, rot_pred, params_pred), (qual_gt, rot_gt, params_gt), grasp_sample_mask
 
 def loss_fn(y_pred, y_true, batch_size, grasp_samples):
+    """
+    Calculate the loss of the current prediction
+    :param y_pred: Predictions of the network, where ground-truth information is available
+    :param y_true: Ground-truth information of the data samples
+    :param batch_size: Size of the batch, used to normalise the loss
+    :grasp_samples: Indices of samples with ground-truth information which do not fall on the background (only actually
+                    sampled and tested grasps during dataset creation, no background)
+
+    :return: overall loss and individual loss parts with width, confidence, orientation, as well as confidence for for
+                negative and positive ground-truth grasps individually
+
+    """
     label_pred, rotation_pred, params_pred = y_pred
     label, rotation, params = y_true
     gtp_indices = torch.nonzero(label)
@@ -183,35 +203,42 @@ def loss_fn(y_pred, y_true, batch_size, grasp_samples):
     loss_background = (label_pred[~grasp_samples].squeeze()**2).sum() / batch_size
     loss_gtn_grasps = (label_pred[grasp_samples][(label[grasp_samples] == 0).nonzero()]**2).sum() / batch_size
     loss_no_grasp = loss_background + loss_gtn_grasps
-    loss_qual = loss_background + loss_gtn_grasps + loss_grasp
+    loss_confidence = loss_background + loss_gtn_grasps + loss_grasp
 
     loss = (LAMBDA_NO_GRASP * loss_background + LAMBDA_GRASP * loss_gtn_grasps +
             LAMBDA_GRASP * loss_grasp + LAMBDA_CONFIG * config_loss)
 
-    return loss, width_loss.sum() / batch_size, loss_qual, loss_rot.sum() / batch_size, loss_no_grasp, loss_grasp
-
-def _qual_loss_fn(pred, target):
-    return F.binary_cross_entropy(pred, target, reduction="mean")
+    return loss, width_loss.sum() / batch_size, loss_confidence, loss_rot.sum() / batch_size, loss_no_grasp, loss_grasp
 
 def _quat_ang_distance(pred, target):
+    """
+    Calculates angular distance between two quaternions, normalised to 1
+    """
     return 2.0/3.14159 * torch.arccos(torch.abs(torch.sum(pred * target, dim=1)))
 
-def _qual_loss_fn_weighted(pred, target, weight_positives=2, device=torch.device("cuda")):
-    qual_weight = torch.ones(target.size()).to(device)
-    qual_weight[torch.nonzero(target)] = weight_positives
-    return F.binary_cross_entropy(pred, target, weight=qual_weight, reduction="mean")
-
 def _quat_loss_fn(pred, target):
+    """
+    Calculate the distance metric of two quaternions according to Kuffner at al.
+    """
     return 1.0 - torch.abs(torch.sum(pred * target, dim=1))
 
 def _l1_loss_fn(pred, target):
+    """
+    Calculate L1 loss
+    """
     return F.l1_loss(pred, target, reduction="mean")
 
 def _mse_loss_fn(pred, target):
+    """
+    Calculate MSE loss
+    """
     return F.mse_loss(pred, target, reduction="mean")
 
 def create_trainer(net, optimizer, loss_fn, metrics, device):
     def _update(_, batch):
+        """
+        Update network for a single batch
+        """
         net.train()
         optimizer.zero_grad()
 
@@ -237,6 +264,9 @@ def create_trainer(net, optimizer, loss_fn, metrics, device):
 
 def create_evaluator(net, loss_fn, metrics, device):
     def _inference(_, batch):
+        """
+        Run inference with the network for a single batch.
+        """
         net.eval()
         with torch.no_grad():
             x, y = prepare_batch(batch, device)

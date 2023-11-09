@@ -1,6 +1,7 @@
 import torch.utils.data
 import numpy as np
-from utils import depth_encoding, get_tensor_list
+
+from src.utils import depth_encoding, get_tensor_list
 
 
 class Dataset(torch.utils.data.Dataset):

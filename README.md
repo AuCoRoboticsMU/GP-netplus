@@ -22,16 +22,19 @@ packages by running:
 ```conda env create -f environment.yml```
 
 
-## Generating training data
+## A. Generating training data
 
 Generating training data consists of three steps:
 
 1. Preparing object meshes
 2. Preparing furniture meshes
 3. Constructing training scenes, testing grasps and saving data
-4. Visualising evaluation results
 
-### Preparing object meshes
+
+You can skip the process of generating training data if you want to use the original training dataset for GP-net+,
+which is available at [zenodo.org](https://zenodo.org/records/10083842).
+
+### 1. Preparing object meshes
 
 We used objects from the ShapeNet, YCB, BigBird and EGAD object sets in our experiments. 
 The resulting object files can be found in the data zip file.
@@ -48,7 +51,7 @@ sampling procedure as per our previous paper, GP-net. The code with a docker imp
 can be found on [github](https://github.com/AuCoRoboticsMU/gpnet-data/blob/master/tools/sample_grasps.py)
 4. Create urdf files based on the convex decomposition of the objects. You can use `src/create_urdfs.py` for this.
 
-### Preparing furniture meshes
+### 2. Preparing furniture meshes
 
 We used 100 furniture meshes from the ShapeNet dataset in our experiments. The resulting
 meshes and sampling spaces can be found in the data zip file.
@@ -74,10 +77,8 @@ the camera sampling spaces. Note this will use the object workspaces, object mes
 7. Finally, generate the .urdf files for the furniture units using `src/create_furniture_urdfs.py`. Note that since the furniture meshes are static objects
 in pybullet, they do not require a convex decomposition but can be simulated as concave objects.
 
-### Simulating training scenes
+### 3. Simulating training scenes
 
-You can skip the process of simulating training scenes if you want to use the original training dataset for GP-net+,
-which is available at [zenodo.org](https://zenodo.org/records/10083842).
 
 You can use `generate_training_data.py` to simulate training scenes and save the data. It expects
 both the furniture meshes and the object meshes to be divided in folders according to their split (train/val/test).
@@ -89,12 +90,12 @@ The depth images, segmentation images, grasps and stats are saved in compressed 
 There is a counter in the naming convention of all of those files, e.g. `depth_image_0000123.npz`, corresponding to the 123rd
 image rendered in the training data generation process.
 
-## Training GP-net+
+## B. Training GP-net+
 
 To train GP-net+, you can use `src/train_gpnetplus.py`. The progress after each epoch is stored in `data/runs`
 and can be visualised using tensorboard, e.g. with `tensorboard --logdir data/runs`.
 
-## Evaluating Networks
+## C. Evaluating Networks
 
 Evaluating GP-net+ and other networks on domestic scenes can be achieved in two steps: generating the 
 evaluation scenes and running inference with the networks. Make sure to download `gpnetplus_simulation_data.zip`  from
@@ -118,7 +119,10 @@ Once the scenes are generated, you can run evaluation using
 detection threshold used when mapping the dense tensor output of GP-net+ to grasp proposals, e.g. using 
 `--detection-threshold 0.4`.
 
-## Visualising evaluation results
+If you want to change the fitness function, run the evaluation using a small threshold, e.g. `--detection-threshold 0.01`.
+You can then use `check_fitness_function.py` to adjust the fitness function and visualise the results.
+
+### Visualising evaluation results
 
 You can visualise evaluation results using `visualise_evaluation_results.py` by changing the variable `experiment_name`
 to your `$MY_LOGNAME` variable. You can modify the script for custom evaluations if required.
