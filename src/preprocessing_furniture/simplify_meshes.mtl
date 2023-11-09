@@ -1,0 +1,28 @@
+<!DOCTYPE FilterScript>
+<FilterScript>
+ <filter name="Simplification: Quadric Edge Collapse Decimation">
+  <Param name="TargetFaceNum" value="4000" description="Target number of faces" isxmlparam="0" tooltip="The desired final number of faces." type="RichInt"/>
+  <Param name="TargetPerc" value="0" description="Percentage reduction (0..1)" isxmlparam="0" tooltip="If non zero, this parameter specifies the desired final size of the mesh as a percentage of the initial size." type="RichFloat"/>
+  <Param name="QualityThr" value="0.3" description="Quality threshold" isxmlparam="0" tooltip="Quality threshold for penalizing bad shaped faces.&lt;br>The value is in the range [0..1]&#xa; 0 accept any kind of face (no penalties),&#xa; 0.5  penalize faces with quality &lt; 0.5, proportionally to their shape&#xa;" type="RichFloat"/>
+  <Param name="PreserveBoundary" value="false" description="Preserve Boundary of the mesh" isxmlparam="0" tooltip="The simplification process tries to do not affect mesh boundaries during simplification" type="RichBool"/>
+  <Param name="BoundaryWeight" value="1" description="Boundary Preserving Weight" isxmlparam="0" tooltip="The importance of the boundary during simplification. Default (1.0) means that the boundary has the same importance of the rest. Values greater than 1.0 raise boundary importance and has the effect of removing less vertices on the border. Admitted range of values (0,+inf). " type="RichFloat"/>
+  <Param name="PreserveNormal" value="false" description="Preserve Normal" isxmlparam="0" tooltip="Try to avoid face flipping effects and try to preserve the original orientation of the surface" type="RichBool"/>
+  <Param name="PreserveTopology" value="false" description="Preserve Topology" isxmlparam="0" tooltip="Avoid all the collapses that should cause a topology change in the mesh (like closing holes, squeezing handles, etc). If checked the genus of the mesh should stay unchanged." type="RichBool"/>
+  <Param name="OptimalPlacement" value="false" description="Optimal position of simplified vertices" isxmlparam="0" tooltip="Each collapsed vertex is placed in the position minimizing the quadric error.&#xa; It can fail (creating bad spikes) in case of very flat areas. &#xa;If disabled edges are collapsed onto one of the two original vertices and the final mesh is composed by a subset of the original vertices. " type="RichBool"/>
+  <Param name="PlanarQuadric" value="true" description="Planar Simplification" isxmlparam="0" tooltip="Add additional simplification constraints that improves the quality of the simplification of the planar portion of the mesh, as a side effect, more triangles will be preserved in flat areas (allowing better shaped triangles)." type="RichBool"/>
+  <Param name="PlanarWeight" value="0.001" description="Planar Simp. Weight" isxmlparam="0" tooltip="How much we should try to preserve the triangles in the planar regions. If you lower this value planar areas will be simplified more." type="RichFloat"/>
+  <Param name="QualityWeight" value="false" description="Weighted Simplification" isxmlparam="0" tooltip="Use the Per-Vertex quality as a weighting factor for the simplification. The weight is used as a error amplification value, so a vertex with a high quality value will not be simplified and a portion of the mesh with low quality values will be aggressively simplified." type="RichBool"/>
+  <Param name="AutoClean" value="true" description="Post-simplification cleaning" isxmlparam="0" tooltip="After the simplification an additional set of steps is performed to clean the mesh (unreferenced vertices, bad faces, etc)" type="RichBool"/>
+  <Param name="Selected" value="false" description="Simplify only selected faces" isxmlparam="0" tooltip="The simplification is applied only to the selected set of faces.&#xa; Take care of the target number of faces!" type="RichBool"/>
+ </filter>
+ <filter name="Transform: Flip and/or swap axis">
+  <Param value="false" isxmlparam="0" type="RichBool" tooltip="If selected the axis will be swapped (mesh mirrored along the YZ plane" name="flipX" description="Flip X axis"/>
+  <Param value="false" isxmlparam="0" type="RichBool" tooltip="If selected the axis will be swapped (mesh mirrored along the XZ plane" name="flipY" description="Flip Y axis"/>
+  <Param value="false" isxmlparam="0" type="RichBool" tooltip="If selected the axis will be swapped (mesh mirrored along the XY plane" name="flipZ" description="Flip Z axis"/>
+  <Param value="false" isxmlparam="0" type="RichBool" tooltip="If selected the two axis will be swapped. All the swaps are performed in this order" name="swapXY" description="Swap X-Y axis"/>
+  <Param value="false" isxmlparam="0" type="RichBool" tooltip="If selected the two axis will be swapped. All the swaps are performed in this order" name="swapXZ" description="Swap X-Z axis"/>
+  <Param value="true" isxmlparam="0" type="RichBool" tooltip="If selected the two axis will be swapped. All the swaps are performed in this order" name="swapYZ" description="Swap Y-Z axis"/>
+  <Param value="true" isxmlparam="0" type="RichBool" tooltip="The transformation is explicitly applied, and the vertex coordinates are actually changed" name="Freeze" description="Freeze Matrix"/>
+  <Param value="false" isxmlparam="0" type="RichBool" tooltip="If selected the filter will be applied to all visible mesh layers" name="allLayers" description="Apply to all visible Layers"/>
+ </filter>
+</FilterScript>
