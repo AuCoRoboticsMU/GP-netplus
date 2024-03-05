@@ -128,3 +128,14 @@ You can visualise evaluation results using `visualise_evaluation_results.py` by 
 to your `$MY_LOGNAME` variable. You can modify the script for custom evaluations if required.
 
 
+-----------------------
+
+If you use this code for your research, please consider citing:
+
+A. Konrad, J. McDonald and R. Villing, "Grasping Unknown Objects in Domestic Environments", in review.
+
+
+This publication has emanated from research supported in part by Grants from Science Foundation Ireland under 
+Grant numbers 18/CRT/6049 and 16/RI/3399.
+The opinions, findings and conclusions or recommendations expressed in this material are those of the author(s) and do 
+not necessarily reflect the views of the Science Foundation Ireland.
