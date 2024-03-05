@@ -132,7 +132,7 @@ to your `$MY_LOGNAME` variable. You can modify the script for custom evaluations
 
 If you use this code for your research, please consider citing:
 
-A. Konrad, J. McDonald and R. Villing, "Grasping Unknown Objects in Domestic Environments", in review.
+A. Konrad, J. McDonald and R. Villing, "Learning to Grasp Unknown Objects in Domestic Environments," in review.
 
 
 This publication has emanated from research supported in part by Grants from Science Foundation Ireland under 
