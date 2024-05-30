@@ -1,21 +1,21 @@
-# GP-net+: Grasp proposal in domestic environments
+# GP-net+: Learning to Grasp Unknown Objects in Domestic Environments
 
-Code and data for paper "GP-net+: Grasp proposal in domestic environments". 
-Realising data-driven grasp proposal in domestic environments requires appropriate training
-data for the networks. In order to realise this, this codebase can prepare furniture units,
+Code and data for paper "Learning to Grasp Unknown Objects in Domestic Environments", which is currently under review. 
+Grasping unknown objects in domestic environments using data-driven methods requires appropriate training
+data for the models. In order to realise this, this codebase can prepare furniture units,
 simulate domestic scenes using those furniture units/object meshes, test grasps and store
 them in a training dataset.
 
-You can use the resulting training dataset to train grasp proposal networks, for example our
+You can use the resulting training dataset to train grasp proposal networks, for example, our
 6-DoF grasp proposal network for flexible viewpoints called GP-net+.
 GP-net+ is a Fully Convolutional Neural Network (FCNN) with a ResNet-50 architecture.
 
 ## Installation
 
-We use pybullet for simulating the domestic scene environments and pytorch for training 
+We use PyBullet for simulating the domestic scene environments and PyTorch for training 
 and evaluating GP-net+.
 
-We recommend installation using a new conda environment. You can install all necessary
+We recommend installation using a new conda environment. You can install all the necessary
 packages by running:
 
 
@@ -99,8 +99,8 @@ and can be visualised using tensorboard, e.g. with `tensorboard --logdir data/ru
 
 Evaluating GP-net+ and other networks on domestic scenes can be achieved in two steps: generating the 
 evaluation scenes and running inference with the networks. Make sure to download `gpnetplus_simulation_data.zip`  from
-[zenodo.org](https://zenodo.org/records/10083842) and unpack it in this directory to have the object meshes and urdf
-files for evaluating the networks available.
+[zenodo.org](https://zenodo.org/records/10083842) and unpack it in this directory to have the meshes, urdf
+files and pre-trained GP-net+ model for evaluating the models available.
 
 ### Generating evaluation scenes
 
